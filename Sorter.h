@@ -36,8 +36,11 @@ struct item_t {
     char movie_facebook_likes[50];
 };
 
-void merge(struct item_t *arr[], int lo, int mid, int hi, int meta);
-void sort(struct item_t *arr[], int lo, int hi, int meta);
-int compare(struct item_t *item1, struct item_t *item2, int meta);
+void merge(struct item_t *a,struct item_t *tmp, int left, int mid, int right, char *what);
+void msort(struct item_t *a,struct item_t *tmp, int left, int right, char *what);
+void merge_sort(struct item_t *a,struct item_t *tmp, const int size, char *what);
+void display(struct item_t *a,const int size,char token[200000]);
+void copytmp(struct item_t *a,struct item_t *tmp,int tmp_pos,int position);
+void copytrue(struct item_t *a,struct item_t *tmp,int right);
 
 #endif /* SORTER_H_ */
