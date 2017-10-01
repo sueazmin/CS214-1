@@ -70,7 +70,6 @@ void copytrue(struct item_t *a,struct item_t *tmp,int right)
 void merge_sort(struct item_t *a,struct item_t *tmp, const int size, char *what)
 {
     msort(a, tmp, 0, size - 1, what);
-                free(a);
 
 }
  
@@ -96,6 +95,7 @@ void merge(struct item_t *a,struct item_t *tmp, int left, int mid, int right, ch
     count = right - left + 1; // 2
     char *tempe = (char *) malloc(10000 * sizeof(char*));
     tempe = what;
+    // printf("%s\n", "aaf" );
     
 
     
@@ -321,7 +321,7 @@ void merge(struct item_t *a,struct item_t *tmp, int left, int mid, int right, ch
     {
         while ((left <= left_end) && (mid <= right))
         {
-            if (atoi(a[left].num_voted_users) <= atoi(a[mid].num_voted_userss)) 
+            if (atoi(a[left].num_voted_users) <= atoi(a[mid].num_voted_users)) 
             {
                 tmp_pos++;
                 left++;
@@ -632,10 +632,14 @@ void merge(struct item_t *a,struct item_t *tmp, int left, int mid, int right, ch
     }
 }
  
-void display(struct item_t *a,const int size,char token[200000])
+void display(struct item_t *a,const int size,char token[200000],int count)
 {
     int i;
     printf("%s\n", token );
+    for(int j = 0; j < count;j++)
+    {
+        printf("%s\n", a[j].incomplete );
+    }
     for(i = 0; i < size; i++)
     {
         printf("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n\n", 

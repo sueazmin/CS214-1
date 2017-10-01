@@ -47,8 +47,8 @@ int main(int argc, char *argv[]) {
                        A[len].language,A[len].country,A[len].content_rating,A[len].budget,A[len].title_year,
                        A[len].actor_2_facebook_likes,A[len].imdb_score,A[len].aspect_ratio,A[len].movie_facebook_likes) != 28) 
                         {
-                            strcpy(A[count].incomplete ,line);
-                            printf("%s\n\n", A[count].incomplete );
+                            strcpy(A[count++].incomplete ,line);
+                            // printf("%s\n\n", A[count].incomplete );
                             olololo--;
 
                         }
@@ -63,29 +63,30 @@ int main(int argc, char *argv[]) {
                             len++;
                         }
         }
-        // free(A);
     }
 
     if (strcmp(argv[1],"-c")==0 ) 
     {
 
-        // int tmp[SIZE];
         struct item_t *tmp =  (struct item_t*) malloc(5000 * sizeof(struct item_t*));
         char *what;
         what = argv[2];
  
     printf("Array before sorting:\n");
-    display(A,olololo,token);
-            // free(A);
+    display(A,olololo,token,count);
 
  
     merge_sort(A, tmp, olololo, what);
  
     printf("Array after sorting:\n");
-    display(A,olololo,token);
+    display(A,olololo,token,count);
+    free(tmp);
+
 
         
     } 
+    free(A);
+
     
 
 

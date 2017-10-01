@@ -39,7 +39,7 @@ struct item_t {
 void merge(struct item_t *a,struct item_t *tmp, int left, int mid, int right, char *what);
 void msort(struct item_t *a,struct item_t *tmp, int left, int right, char *what);
 void merge_sort(struct item_t *a,struct item_t *tmp, const int size, char *what);
-void display(struct item_t *a,const int size,char token[200000]);
+void display(struct item_t *a,const int size,char token[200000],int count);
 void copytmp(struct item_t *a,struct item_t *tmp,int tmp_pos,int position);
 void copytrue(struct item_t *a,struct item_t *tmp,int right);
 
