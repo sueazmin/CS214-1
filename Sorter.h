@@ -1,3 +1,16 @@
+/**
+* Group members: Suhail Azmin Bin Saiful adli & Maryam Farid Iskandar
+* Class: CS 214
+* File: Sorter.h
+* Description: Sorter.h is the header file that holds all the data from
+*			   movie_metadata.csv in struct member variables and 
+*              function declarations.
+*
+**/
+
+
+
+
 #ifndef SORTER_H_
 #define SORTER_H_
 #include <stdio.h>

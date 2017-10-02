@@ -1,5 +1,17 @@
+/**
+* Group members: Suhail Azmin Bin Saiful adli & Maryam Farid Iskandar
+* Class: CS 214
+* File: Mergesort.c
+* Description: Mergesort.c holds all the function definiton based on the declaration on Sorter.h 
+*              and used in Sorter.c. It contains all the function that is needed to perform
+*              the mergesort specifically on data from movie_metada.csv.
+*
+**/
+
+
 #include "sorter.h"
 
+//copy all struct members to temporary struct members
 void copytmp(struct item_t *a,struct item_t *tmp,int tmp_pos,int position)
 {
     strcpy(tmp[tmp_pos-1].color,a[position-1].color);
@@ -32,6 +44,8 @@ void copytmp(struct item_t *a,struct item_t *tmp,int tmp_pos,int position)
     strcpy(tmp[tmp_pos-1].movie_facebook_likes,a[position-1].movie_facebook_likes);
 
 }
+
+//copy from temporary all struct members to real struct members
 void copytrue(struct item_t *a,struct item_t *tmp,int right)
 {
     strcpy(a[right].color, tmp[right].color);
@@ -62,10 +76,7 @@ void copytrue(struct item_t *a,struct item_t *tmp,int right)
     strcpy(a[right].imdb_score, tmp[right].imdb_score);
     strcpy(a[right].aspect_ratio, tmp[right].aspect_ratio);
     strcpy(a[right].movie_facebook_likes, tmp[right].movie_facebook_likes);
-
-
 }
-
 
 void merge_sort(struct item_t *a,struct item_t *tmp, const int size, char *what)
 {
@@ -86,16 +97,17 @@ void msort(struct item_t *a,struct item_t *tmp, int left, int right, char *what)
     }
 }
  
-void merge(struct item_t *a,struct item_t *tmp, int left, int mid, int right, char *what)
+void merge(struct item_t *a,struct item_t *tmp, int left, int mid, int right, char *column)
 {
 
     int i, left_end, count, tmp_pos;
     left_end = mid - 1;  // 0
     tmp_pos = left; // 0
     count = right - left + 1; // 2
+
+    //allocate memory for temporary variable to hold which column to sort.
     char *tempe = (char *) malloc(10000 * sizeof(char*));
-    tempe = what;
-    // printf("%s\n", "aaf" );
+    tempe = column;
     
 
     
@@ -141,6 +153,7 @@ void merge(struct item_t *a,struct item_t *tmp, int left, int mid, int right, ch
     {
         while ((left <= left_end) && (mid <= right))
         {
+            //convert string to int for to compare
             if (atoi(a[left].num_critic_for_reviews) <= atoi(a[mid].num_critic_for_reviews)) 
             {
                 tmp_pos++;
@@ -606,7 +619,12 @@ void merge(struct item_t *a,struct item_t *tmp, int left, int mid, int right, ch
         }      
     }
     else
-        printf("%s\n", "error" );
+    {
+        //return default, no sort.
+        printf("%s\n\n", "No column indicated!" );
+        return;
+
+    }
 
 
     while (left <= left_end)
@@ -635,8 +653,13 @@ void merge(struct item_t *a,struct item_t *tmp, int left, int mid, int right, ch
 void display(struct item_t *a,const int size,char token[200000],int count)
 {
     int i;
+    int j;
+
+    //display column types
     printf("%s\n", token );
-    for(int j = 0; j < count;j++)
+
+    //display datas from movie_metada.csv that has null datas in lines.
+    for(j = 0; j < count;j++)
     {
         printf("%s\n", a[j].incomplete );
     }
