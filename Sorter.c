@@ -102,10 +102,7 @@ int main(int argc, char *argv[]) {
         char *column;
         column = argv[2];
  
-    printf("Recordrray before sorting:\n");
-    display(Record,true_size,token,count);
 
- 
     //calls merge functions from Mergesort.c
     merge_sort(Record, tmp, true_size, column);
  
