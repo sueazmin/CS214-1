@@ -1,7 +1,7 @@
 /**
-* Group members: Suhail Azmin Bin Saiful adli & Maryam Farid Iskandar
+* Group members: Suhail Azmin Bin Saiful Adli & Maryam Farid Iskandar
 * Class: CS 214
-* File: Mergesort.c
+* File: mergesort.c
 * Description: Mergesort.c holds all the function definiton based on the declaration on Sorter.h 
 *              and used in Sorter.c. It contains all the function that is needed to perform
 *              the mergesort specifically on data from movie_metada.csv.
@@ -11,7 +11,9 @@
 
 #include "sorter.h"
 
-//copy all struct members to temporary struct members
+
+/*copy all struct members to temporary struct members
+*/
 void copytmp(struct item_t *a,struct item_t *tmp,int tmp_pos,int position)
 {
     strcpy(tmp[tmp_pos-1].color,a[position-1].color);
@@ -45,7 +47,8 @@ void copytmp(struct item_t *a,struct item_t *tmp,int tmp_pos,int position)
 
 }
 
-//copy from temporary all struct members to real struct members
+/*copy from temporary all struct members to real struct members
+*/
 void copytrue(struct item_t *a,struct item_t *tmp,int right)
 {
     strcpy(a[right].color, tmp[right].color);
@@ -108,9 +111,7 @@ void merge(struct item_t *a,struct item_t *tmp, int left, int mid, int right, ch
     //allocate memory for temporary variable to hold which column to sort.
     char *tempe = (char *) malloc(10000 * sizeof(char*));
     tempe = column;
-    
-
-    
+       
 
 
     if (strcmp(tempe,"color") == 0)
@@ -650,6 +651,8 @@ void merge(struct item_t *a,struct item_t *tmp, int left, int mid, int right, ch
     }
 }
  
+/*display all data
+*/
 void display(struct item_t *a,const int size,char token[200000],int count)
 {
     int i;

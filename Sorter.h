@@ -1,7 +1,7 @@
 /**
-* Group members: Suhail Azmin Bin Saiful adli & Maryam Farid Iskandar
+* Group members: Suhail Azmin Bin Saiful Adli & Maryam Farid Iskandar
 * Class: CS 214
-* File: Sorter.h
+* File: sorter.h
 * Description: Sorter.h is the header file that holds all the data from
 *			   movie_metadata.csv in struct member variables and 
 *              function declarations.

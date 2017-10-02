@@ -1,40 +1,56 @@
 project:
 cs214-The Sorter Part 0
 
-Design:
+DESIGN:
 
-We desined this sorter program to only use mergesort on movie_metadata.csv with the help of structs 
-to record each data from the file. It will print all the rows/lines from the file that have incomplete 
-column data first in the order they appear in the original file.
+The sorter program is designed to sort a csv file using mergesort for certain variables with the help of structs
+to record each data from the file. The csv file must match the format mentioned in ASSUMPTIONS. It will print all
+the rows/lines from the file that have incomplete column data first in the order they appear in the original file.
 
-Assumptions:
+
+ASSUMPTIONS:
+
 Since we are using arrays for our struct member variables, we assume that the device running this 
 program should have sufficient memory to handle it.
 
-Difficulties:
+The sorting function only works on the following variables: color, director_name, num_critic_for_reviews,
+duration, director_facebook_likes, actor_3_facebook_likes, actor_2_name, actor_1_facebook_likes, gross,
+actor_1_name, movie_title, num_voted_users, cast_total_facebook_likes, actor_3_name, facenumber_in_poster,
+plot_keywords, movie_imdb_link, num_user_for_reviews, language, country, content_rating, budget, title_year,
+actor-2_facebook_likes, imdb_score, aspect_ratio and movie_facebook_likes.
+
+ 
+DIFFICULTIES:
 We find it hard to use pointers for struct member variables instead of arrays since it will require
 a lot of malloc functions and make our code more messy.
 
 
 
-How to use:
+HOW TO USE:
 (Terminal method)
 
 1) compile the code : gcc Sorter.c Mergesort.c 
-2) run the code : cat movie_metadata.csv | ./a.out -c director name    (must put "-c" before choosing which column to sort) 
+2) run the code : cat "filename.csv" | ./a.out -c "variable"
+
+Note:
+1. Type "-c" before choosing which column to sort.
+2. Replace "filename.csv" with any csv file that match the format mentioned in ASSUMPTIONS.
+3. Replace "variable" with any variable listed in ASSUMPTIONS.
+
+
 
 Brief description of submitted files:
 
-Sorter.h
-    - holds data from movie_metadata.csv in struct members.
-    - holds function declarations.
+sorter.h
+    - Holds data from given csv file in struct members.
+    - Holds function declarations.
 
-Sorter.c
-    - calls functions from Mergesort.c.
+sorter.c
+    - Calls functions from Mergesort.c.
     - Record and sort data from movie_metadata.csv using mergesort algorithm.
     
 
-Mergesort.c
+mergesort.c
     - holds function definition for mergesort.
   
 

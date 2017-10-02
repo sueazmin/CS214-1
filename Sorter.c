@@ -1,13 +1,12 @@
 /**
-* Group members: Suhail Azmin Bin Saiful adli & Maryam Farid Iskandar
+* Group members: Suhail Azmin Bin Saiful Adli & Maryam Farid Iskandar
 * Class: CS 214
-* File: Sorter.c
+* File: sorter.c
 * Description: Sorter.c is the main file that calls the all the functions from 
 *              Mergesort.c with the help of Sorter.h to record the data from 
 *              movie_metadata.csv and sort them using merge sort algorithm.
 *
 **/
-
 
 
 
