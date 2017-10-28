@@ -652,11 +652,17 @@ void merge(struct item_t *a,struct item_t *tmp, int left, int mid, int right, ch
  
 void display(struct item_t *a,const int size,char token[200000],int count)
 {
+
     int i;
     int j;
+    char   buf[100];
+
+
+
 
     //display column types
     printf("%s\n", token );
+
 
     //display datas from movie_metada.csv that has null datas in lines.
     for(j = 0; j < count;j++)
