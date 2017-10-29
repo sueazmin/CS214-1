@@ -11,16 +11,109 @@
 
 
 
-#include <ctype.h>
 #include "sorter.h"
 
+void show_dir_content(FILE *pidlist, char * path, char *columnsort);
+void create_sorted(char  *outdir, char *filename,  char *columnsort);
 void remove_whtspace(struct item_t *Record, int size);
 char * trim(char *string);
 
+/*	TO-DO LIST
+* - test with absolute & relative path for indir, outdir (show_dir_content)
+* - check metadata at 1st line (create_sorted)
+* - read & print pidlist (main)
+* - check output, include [sorted-"column"] in name (outputcsv)
+* - include outdir somehow (show_dir_content)
+*/
+
+char *outdir;
 
 int main(int argc, char *argv[]) {
+	
+	if(argc < 2){
+		printf("not enough command\n");
+		return 0;
+	}
+	
+	//no error checking (for now?)
+	
+	FILE *pidlist = fopen("pidlist.txt", "a");
+	
+	if(argc < 4){	//scan current dir
+		char cwd[255];
+		getcwd(cwd, sizeof(cwd));
+		show_dir_content(pidlist, cwd, argv[2]);
+		
+	} else {
+		show_dir_content(pidlist, argv[4], argv[2]);
+	}
 
-    FILE *stream = stdin;
+	fclose(pidlist);
+	
+	//open & count
+	FILE *fcount = fopen("pidlist.txt", "r");
+	int totalpid = 0;
+	printf("Initial PID: %s\n", getpid());
+	printf("PIDs of all child processes: ");
+	//go thru pidlist.txt, print, increment totalpid
+	printf("Total number of processes: %d\n", totalpid);
+	fclose(fcount);
+
+    return 0;
+}
+
+
+/* scan dir, fork when csv/new dir is found
+*   call create_sorted on csv
+*/
+void show_dir_content(FILE *pidlist, char *path, char *columnsort) {
+  DIR * d = opendir(path);
+  if(d==NULL) return; 
+  struct dirent * dir;
+  while ((dir = readdir(d)) != NULL)
+    {
+
+      if(dir-> d_type != DT_DIR){ // not dir
+       
+        char *dot = strrchr(dir->d_name, '.');
+        if (dot && !strcmp(dot, ".csv") && strstr(dir->d_name, "sorted") == NULL) { //find csv
+            //printf("hello %s\n", dir->d_name);
+			
+			pid_t pid = fork();
+			if(pid == 0){
+				printf("found %s/%s\n", path, dir->d_name);
+				//create_sorted(outdir, dir->d_name, columnsort);
+				fprintf(pidlist, "%d\n", getpid());
+				exit(1);
+			}
+        }
+
+      } 
+      else if(dir -> d_type == DT_DIR && strcmp(dir->d_name,".")!=0 && strcmp(dir->d_name,"..")!=0 ) // if dir
+      {
+        char d_path[255];
+        sprintf(d_path, "%s/%s", path, dir->d_name);
+		
+		pid_t pid = fork();
+		if(pid == 0){
+			printf("new dir: %s\n", d_path);
+			fprintf(pidlist, "%d\n", getpid());
+			show_dir_content(pidlist, d_path, columnsort);	//recursive
+			exit(1);
+		}
+
+      }
+    }
+    closedir(d); // finally close the directory
+}
+
+/* create Record object from csv file, mergesort by -c column, output to -o outdir
+*/
+void create_sorted(char *outdir, char *filename, char *columnsort) {
+    FILE *stream = fopen(filename, "r");
+	
+	//WARNING YO
+	//Check metadata at 1st line, return if fail
 
     //Hold each line from movie_metadata.csv file
     char line[200000];
@@ -30,7 +123,7 @@ int main(int argc, char *argv[]) {
     //struct pointer to hold every data from movie_metadata.csv file
     struct item_t *Record = NULL;
 
-    //hold first line of movie_metadata.csv file which is the coloumn types.
+    //hold first line of movie_metadata.csv file which is the column types.
     char token[200000];
     int first_row = 1;
     int true_size = 0;
@@ -53,12 +146,12 @@ int main(int argc, char *argv[]) {
                 Record = realloc(Record, sizeof(*Record) * size);
                 if (Record == NULL) {
                     fprintf(stderr, "out of memory for %d items\n", size);
-                    return 1;
+                    return;
                 }
             }
 
             //scan each line until a comma that seperates between two data and
-            //seperate them into designated struct member variables.
+            //separate them into designated struct member variables.
             if (sscanf(line, "%190[^,\n],%190[^,\n],%190[^,\n],%190[^,\n],%230[^,\n],%400[^,\n],%490[^,\n],%490[^,\n],%490[^,\n],%490[^,\n],%490[^,\n],%490[^,],%490[^,\n],%490[^,\n],%490[^,\n],%490[^,\n],%490[^,\n],%499[^,\n],%490[^,\n],%490[^,\n],%490[^,\n],%490[^,\n],%490[^,\n],%490[^,\n],%490[^,\n],%490[^,\n],%490[^,\n],%490[^,\n]",
                        Record[len].color, Record[len].director_name, &(Record[len].num_critic_for_reviews),Record[len].duration,
                        Record[len].director_facebook_likes,Record[len].actor_3_facebook_likes,Record[len].actor_2_name,
@@ -95,38 +188,18 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    if (strcmp(argv[1],"-c")== 0 )
-    {
-        //temporary struct item_t pointer for sorting purpose in Mergesort.c
-        struct item_t *tmp =  (struct item_t*) malloc(5000 * sizeof(struct item_t*));
 
-        //which column to sort
-        char *column;
-        column = argv[2];
-
+    //temporary struct item_t pointer for sorting purpose in Mergesort.c
+    struct item_t *tmp =  (struct item_t*) malloc(5000 * sizeof(struct item_t*));
 
     //calls merge functions from mergesort.c
     remove_whtspace(Record, true_size);
-    merge_sort(Record, tmp, true_size, column);
+    merge_sort(Record, tmp, true_size, columnsort);
 
-    printf("color,director_name,num_critic_for_reviews,duration,director_facebook_likes,actor_3_facebook_likes,actor_2_name,actor_1_facebook_likes,gross,genres,actor_1_name,movie_title,num_voted_users,cast_total_facebook_likes,actor_3_name,facenumber_in_poster,plot_keywords,movie_imdb_link,num_user_for_reviews,language,country,content_rating,budget,title_year,actor_2_facebook_likes,imdb_score,aspect_ratio,movie_facebook_likes");
-    display(Record,true_size,token,count);
+	//sorting done!
+	outputcsv(outdir, filename, Record, true_size, token, count);
     free(tmp);
-
-
-
-    }
-    else
-    {
-        printf("%s\n", "Error! : \"-c\" must be typed before indicating which column to sort." );
-    }
-    free(Record);
-
-
-
-
-
-    return 0;
+    free(Record);	
 }
 
 /*remove leading whitespace
@@ -167,6 +240,8 @@ void remove_whtspace(struct item_t *Record, int size){
 	}
 }
 
+/* remove_whtspace helper
+*/
 char * trim(char *string){
 	if(string == NULL) return NULL;
 	if(strlen(string) == 0) return "";

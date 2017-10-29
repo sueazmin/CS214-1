@@ -679,3 +679,32 @@ void display(struct item_t *a,const int size,char token[200000],int count)
     }
  
 }
+
+void outputcsv(char *path, char *filename, struct item_t *a, const int size, char token[200000], int count)
+{
+	char filepath[255];
+	sprintf(filepath, "%s/%s", path, filename);
+	
+	FILE *fp = fopen(filepath, "w");
+	
+	//column types
+	fprintf(fp, "%s\n", token);
+
+	int i;
+	for(i = 0; i < size; i++)
+    {
+        fprintf(fp, "%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n\n", 
+            a[i].color, a[i].director_name, a[i].num_critic_for_reviews, 
+            a[i].duration, a[i].director_facebook_likes,a[i].actor_3_facebook_likes,a[i].actor_2_name,
+            a[i].actor_1_facebook_likes,a[i].gross,a[i].genres,a[i].actor_1_name,a[i].movie_title,a[i].num_voted_users,
+            a[i].cast_total_facebook_likes,a[i].actor_3_name,a[i].facenumber_in_poster,a[i].plot_keywords,a[i].movie_imdb_link,
+            a[i].num_user_for_reviews,a[i].language,a[i].country,a[i].content_rating,a[i].budget,a[i].title_year,
+            a[i].actor_2_facebook_likes,a[i].imdb_score,a[i].aspect_ratio,a[i].movie_facebook_likes);
+
+    }
+	
+	fclose(fp);
+}
+
+
+
