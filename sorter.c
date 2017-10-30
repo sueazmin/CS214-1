@@ -21,13 +21,11 @@ void remove_whtspace(struct item_t *Record, int size);
 char * trim(char *string);
 
 /*	TO-DO LIST
-* - test with absolute & relative path for indir, outdir (show_dir_content) & (create_sorted)
-* - or just change relative path to absolute?
-*
-* - check outdir
+* - test with absolute & relative path for outdir (show_dir_content) & (create_sorted)
+* - or just change relative path to absolute? (use realpath())
+
 */
 
-char *outdir;
 
 int main(int argc, char *argv[]) {
 	
@@ -37,7 +35,8 @@ int main(int argc, char *argv[]) {
 	}
 
 	remove("pidlist.txt");
-	FILE *pidlist = fopen("pidlist.txt", "a");	//overwrite file to be empty?
+	FILE *pidlist = fopen("pidlist.txt", "a");
+	
 	
 	//this is thing is ugly
 	//it assumes the user is following the convention in order
@@ -55,6 +54,8 @@ int main(int argc, char *argv[]) {
 		printf("Sort by: %s, Input dir: %s, Output dir: %s\n", argv[2], argv[4], argv[6]);
 		show_dir_content(pidlist, argv[2], argv[4], argv[6]);
 	}
+	
+	
 	
 	//wait for all child processes to exit
 	pid_t parent;
@@ -113,10 +114,10 @@ void show_dir_content(FILE *pidlist, char *columnsort, char *path, char *outdir)
         }
 
       } 
-      else if(dir -> d_type == DT_DIR && strcmp(dir->d_name,".")!=0 && strcmp(dir->d_name,"..")!=0 ) // if dir
+      else if(dir->d_type == DT_DIR && dir->d_name[0] != '.' && strcmp(dir->d_name,"..")!=0 ) // if dir & not hidden
       {
         char d_path[255];
-        sprintf(d_path, "%s/%s", path, dir->d_name);
+        sprintf(d_path, "%s%s", path, dir->d_name);
 		
 		pid_t pid = fork();
 		if(pid == 0){
@@ -132,6 +133,7 @@ void show_dir_content(FILE *pidlist, char *columnsort, char *path, char *outdir)
 }
 
 /* create Record object from csv file, mergesort by -c column, output to -o outdir
+* output on the same folder if outdir is null
 */
 void create_sorted(char *outdir, char *filename, char *columnsort) {
     FILE *stream = fopen(filename, "r");
@@ -157,7 +159,7 @@ void create_sorted(char *outdir, char *filename, char *columnsort) {
 				
 				line[strlen(line)-2] = '\0';
 				if(strcmp(token, line) != 0){	//wrong metadata on 1st line
-					printf("wrong metadata\n");
+					//printf("wrong metadata\n");
 					return;
 				}
                 continue;
@@ -222,13 +224,12 @@ void create_sorted(char *outdir, char *filename, char *columnsort) {
     merge_sort(Record, tmp, true_size, columnsort);
 
 	//sorting done!
-	//change filename to include outdir, if  necessary and  "sorted-column"
-	char filepath[100];
+	//change filename to include outdir, if necessary and  add "sorted-column"
+	char filepath[1024];
 	if(outdir != NULL){
 		strcat(filepath, outdir);
 	}
-	//maybe check if outdir is relative path here?
-	//if relative, change it to absolute
+
 	strcat(filepath, filename);
 	int i, n = strlen(filepath);
 	for(i=n-1; i > (n-5); i--){
