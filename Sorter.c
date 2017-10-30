@@ -13,17 +13,18 @@
 
 #include "sorter.h"
 
-void show_dir_content(FILE *pidlist, char * path, char *columnsort);
+char *token = "color,director_name,num_critic_for_reviews,duration,director_facebook_likes,actor_3_facebook_likes,actor_2_name,actor_1_facebook_likes,gross,genres,actor_1_name,movie_title,num_voted_users,cast_total_facebook_likes,actor_3_name,facenumber_in_poster,plot_keywords,movie_imdb_link,num_user_for_reviews,language,country,content_rating,budget,title_year,actor_2_facebook_likes,imdb_score,aspect_ratio,movie_facebook_likes";
+
+void show_dir_content(FILE *pidlist, char *columnsort, char *path, char *outdir) ;
 void create_sorted(char  *outdir, char *filename,  char *columnsort);
 void remove_whtspace(struct item_t *Record, int size);
 char * trim(char *string);
 
 /*	TO-DO LIST
-* - test with absolute & relative path for indir, outdir (show_dir_content)
-* - check metadata at 1st line (create_sorted)
-* - read & print pidlist (main)
-* - check output, include [sorted-"column"] in name (outputcsv)
-* - include outdir somehow (show_dir_content)
+* - test with absolute & relative path for indir, outdir (show_dir_content) & (create_sorted)
+* - read, print, delete pidlist (main)
+* - solve segfault prob from sort (create_sorted?)
+* - overwrite pidlist.txt before using it (main)
 */
 
 char *outdir;
@@ -36,29 +37,51 @@ int main(int argc, char *argv[]) {
 	}
 	
 	//no error checking (for now?)
-	
-	FILE *pidlist = fopen("pidlist.txt", "a");
+	remove("pidlist.txt");
+	FILE *pidlist = fopen("pidlist.txt", "a");	//overwrite file to be empty?
 	
 	if(argc < 4){	//scan current dir
 		char cwd[255];
 		getcwd(cwd, sizeof(cwd));
-		show_dir_content(pidlist, cwd, argv[2]);
+		printf("Sort by: %s, Input dir: %s, Output dir: none\n", argv[2], cwd);
+		show_dir_content(pidlist, argv[2], cwd, NULL);
+		
+	} else if(argc < 6){
+		printf("Sort by: %s, Input dir: %s, Output dir: none\n", argv[2], argv[4]);
+		show_dir_content(pidlist, argv[2], argv[4], NULL);
 		
 	} else {
-		show_dir_content(pidlist, argv[4], argv[2]);
+		printf("Sort by: %s, Input dir: %s, Output dir: %s\n", argv[2], argv[4], argv[6]);
+		show_dir_content(pidlist, argv[2], argv[4], argv[6]);
 	}
-
+	
+	//wait for all child processes to exit
+	pid_t parent;
+	int status = 0;
+	while((parent = wait(&status) > 0));
+	
+	//save file buffer into pidlist by closing it
 	fclose(pidlist);
 	
-	//open & count
-	FILE *fcount = fopen("pidlist.txt", "r");
+	//open it again & count
+	pidlist = fopen("pidlist.txt", "r");
 	int totalpid = 0;
-	printf("Initial PID: %s\n", getpid());
+	printf("\nInitial PID: %d\n", getpid());
 	printf("PIDs of all child processes: ");
+	
 	//go thru pidlist.txt, print, increment totalpid
-	printf("Total number of processes: %d\n", totalpid);
-	fclose(fcount);
-
+	char buffer[10];
+	while (fgets(buffer, 10, pidlist)){
+		if(buffer[strlen(buffer)-1] == '\n')
+			buffer[strlen(buffer)-1]= '\0';	//remove newline
+		printf("%s, ", buffer);
+		totalpid++;
+	}
+	printf("\nTotal number of processes: %d\n", totalpid);
+	fclose(pidlist);
+	//remove("pidlist.txt");		//delete after done
+	
+	
     return 0;
 }
 
@@ -66,7 +89,7 @@ int main(int argc, char *argv[]) {
 /* scan dir, fork when csv/new dir is found
 *   call create_sorted on csv
 */
-void show_dir_content(FILE *pidlist, char *path, char *columnsort) {
+void show_dir_content(FILE *pidlist, char *columnsort, char *path, char *outdir) {
   DIR * d = opendir(path);
   if(d==NULL) return; 
   struct dirent * dir;
@@ -98,22 +121,19 @@ void show_dir_content(FILE *pidlist, char *path, char *columnsort) {
 		if(pid == 0){
 			printf("new dir: %s\n", d_path);
 			fprintf(pidlist, "%d\n", getpid());
-			show_dir_content(pidlist, d_path, columnsort);	//recursive
+			show_dir_content(pidlist, columnsort, d_path, outdir);	//recursive
 			exit(1);
 		}
 
       }
     }
-    closedir(d); // finally close the directory
+    closedir(d); // close directory
 }
 
 /* create Record object from csv file, mergesort by -c column, output to -o outdir
 */
 void create_sorted(char *outdir, char *filename, char *columnsort) {
     FILE *stream = fopen(filename, "r");
-	
-	//WARNING YO
-	//Check metadata at 1st line, return if fail
 
     //Hold each line from movie_metadata.csv file
     char line[200000];
@@ -124,17 +144,20 @@ void create_sorted(char *outdir, char *filename, char *columnsort) {
     struct item_t *Record = NULL;
 
     //hold first line of movie_metadata.csv file which is the column types.
-    char token[200000];
     int first_row = 1;
     int true_size = 0;
-
+	//token is in sorter.h
 
     if (stream) {
         while (fgets(line, sizeof(line), stream)) {
             if (first_row ==1)
             {
                 first_row++;
-                strcpy(token,line);
+				
+				line[strlen(line)-2] = '\0';
+				if(strcmp(token, line) != 0){	//wrong metadata on 1st line
+					return;
+				}
                 continue;
             }
             true_size++;
@@ -197,7 +220,23 @@ void create_sorted(char *outdir, char *filename, char *columnsort) {
     merge_sort(Record, tmp, true_size, columnsort);
 
 	//sorting done!
-	outputcsv(outdir, filename, Record, true_size, token, count);
+	//change filename to include outdir, if  necessary and  "sorted-column"
+	char filepath[100];
+	if(outdir != NULL){
+		strcat(filepath, outdir);
+	}
+	//maybe check if outdir is relative path here?
+	//if relative, change it to absolute
+	strcat(filepath, filename);
+	int i, n = strlen(filepath);
+	for(i=n-1; i > (n-5); i--){
+		filepath[i] = '\0';
+	}
+	strcat(filepath, "-sorted-");
+	strcat(filepath, columnsort);
+	strcat(filepath, ".csv");
+	
+	outputcsv(filepath, Record, true_size, token, count);
     free(tmp);
     free(Record);	
 }

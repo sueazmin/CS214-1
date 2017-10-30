@@ -653,13 +653,13 @@ void merge(struct item_t *a,struct item_t *tmp, int left, int mid, int right, ch
  
 /*display all data
 */
-void display(struct item_t *a,const int size,char token[200000],int count)
+void display(struct item_t *a, const int size, char *token, int count)
 {
     int i;
     int j;
 
     //display column types
-    printf("%s\n", token );
+    printf("%s\n", token);
 
     //display datas from movie_metada.csv that has null datas in lines.
     for(j = 0; j < count;j++)
@@ -680,16 +680,17 @@ void display(struct item_t *a,const int size,char token[200000],int count)
  
 }
 
-void outputcsv(char *path, char *filename, struct item_t *a, const int size, char token[200000], int count)
+void outputcsv(char *filename, struct item_t *a, const int size, char *token, int count)
 {
-	char filepath[255];
-	sprintf(filepath, "%s/%s", path, filename);
-	
-	FILE *fp = fopen(filepath, "w");
+	FILE *fp = fopen(filename, "w");
 	
 	//column types
 	fprintf(fp, "%s\n", token);
-
+    //display datas from movie_metada.csv that has null datas in lines.
+    for(j = 0; j < count;j++)
+    {
+        fprintf(fp, "%s\n", a[j].incomplete );
+    }	
 	int i;
 	for(i = 0; i < size; i++)
     {
@@ -701,8 +702,7 @@ void outputcsv(char *path, char *filename, struct item_t *a, const int size, cha
             a[i].num_user_for_reviews,a[i].language,a[i].country,a[i].content_rating,a[i].budget,a[i].title_year,
             a[i].actor_2_facebook_likes,a[i].imdb_score,a[i].aspect_ratio,a[i].movie_facebook_likes);
 
-    }
-	
+    }	
 	fclose(fp);
 }
 
