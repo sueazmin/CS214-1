@@ -1,7 +1,6 @@
 Multi-process Sorter: Part 1
 Group Members: Suhail Azmin Bin Saiful Adli & Maryam Farid Iskandar
 
-FILES: sorter.c, mergesort.c, sorter.h, makefile
 
 DESIGN:
 
@@ -73,3 +72,22 @@ There are 3 ways to use the sorter program:
 variable = 		any 1 variable under ASSUMPTIONS
 input_dir = 	absolute or relative path for input directory
 output_dir = 	absolute or relative path for output directory
+
+
+FILES:
+sorter.h
+    - Holds data from given csv file in struct members.
+    - Holds function declarations.
+
+sorter.c
+	- Recurse through directories to find csv files.
+    - Calls functions from Mergesort.c.
+    - Record and sort data from movie_metadata.csv using mergesort algorithm.
+    
+
+mergesort.c
+    - Holds function definition for mergesort.
+	- Create output for sorted data.
+
+README.txt
+    - Description of submitted files
