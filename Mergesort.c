@@ -4,7 +4,7 @@
 * File: mergesort.c
 * Description: Mergesort.c holds all the function definiton based on the declaration on Sorter.h 
 *              and used in Sorter.c. It contains all the function that is needed to perform
-*              the mergesort specifically on data from movie_metada.csv.
+*              the mergesort specifically on data from movie_metadata.csv.
 *
 **/
 
@@ -705,6 +705,3 @@ void outputcsv(char *filename, struct item_t *a, const int size, char *token, in
     }	
 	fclose(fp);
 }
-
-
-
