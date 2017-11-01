@@ -21,13 +21,11 @@ void remove_whtspace(struct item_t *Record, int size);
 char * trim(char *string);
 
 /*	TO-DO LIST
-* - test with absolute & relative path for indir, outdir (show_dir_content) & (create_sorted)
-* - read, print, delete pidlist (main)
-* - solve segfault prob from sort (create_sorted?)
-* - overwrite pidlist.txt before using it (main)
+* - test with absolute & relative path for outdir (show_dir_content) & (create_sorted)
+* - or just change relative path to absolute? (use realpath())
+
 */
 
-char *outdir;
 
 int main(int argc, char *argv[]) {
 	
@@ -35,11 +33,13 @@ int main(int argc, char *argv[]) {
 		printf("not enough command\n");
 		return 0;
 	}
-	
-	//no error checking (for now?)
+
 	remove("pidlist.txt");
-	FILE *pidlist = fopen("pidlist.txt", "a");	//overwrite file to be empty?
+	FILE *pidlist = fopen("pidlist.txt", "a");
 	
+	
+	//this is thing is ugly
+	//it assumes the user is following the convention in order
 	if(argc < 4){	//scan current dir
 		char cwd[255];
 		getcwd(cwd, sizeof(cwd));
@@ -54,6 +54,8 @@ int main(int argc, char *argv[]) {
 		printf("Sort by: %s, Input dir: %s, Output dir: %s\n", argv[2], argv[4], argv[6]);
 		show_dir_content(pidlist, argv[2], argv[4], argv[6]);
 	}
+	
+	
 	
 	//wait for all child processes to exit
 	pid_t parent;
@@ -73,13 +75,13 @@ int main(int argc, char *argv[]) {
 	char buffer[10];
 	while (fgets(buffer, 10, pidlist)){
 		if(buffer[strlen(buffer)-1] == '\n')
-			buffer[strlen(buffer)-1]= '\0';	//remove newline
-		printf("%s, ", buffer);
+			buffer[strlen(buffer)-1]= ',';	//replace newline with comma
+		printf("%s ", buffer);
 		totalpid++;
 	}
 	printf("\nTotal number of processes: %d\n", totalpid);
 	fclose(pidlist);
-	//remove("pidlist.txt");		//delete after done
+	remove("pidlist.txt");		//delete after done
 	
 	
     return 0;
@@ -105,17 +107,17 @@ void show_dir_content(FILE *pidlist, char *columnsort, char *path, char *outdir)
 			pid_t pid = fork();
 			if(pid == 0){
 				printf("found %s/%s\n", path, dir->d_name);
-				//create_sorted(outdir, dir->d_name, columnsort);
+				create_sorted(outdir, dir->d_name, columnsort);
 				fprintf(pidlist, "%d\n", getpid());
 				exit(1);
 			}
         }
 
       } 
-      else if(dir -> d_type == DT_DIR && strcmp(dir->d_name,".")!=0 && strcmp(dir->d_name,"..")!=0 ) // if dir
+      else if(dir->d_type == DT_DIR && dir->d_name[0] != '.' && strcmp(dir->d_name,"..")!=0 ) // if dir & not hidden
       {
         char d_path[255];
-        sprintf(d_path, "%s/%s", path, dir->d_name);
+        sprintf(d_path, "%s%s", path, dir->d_name);
 		
 		pid_t pid = fork();
 		if(pid == 0){
@@ -131,6 +133,7 @@ void show_dir_content(FILE *pidlist, char *columnsort, char *path, char *outdir)
 }
 
 /* create Record object from csv file, mergesort by -c column, output to -o outdir
+* output on the same folder if outdir is null
 */
 void create_sorted(char *outdir, char *filename, char *columnsort) {
     FILE *stream = fopen(filename, "r");
@@ -156,6 +159,7 @@ void create_sorted(char *outdir, char *filename, char *columnsort) {
 				
 				line[strlen(line)-2] = '\0';
 				if(strcmp(token, line) != 0){	//wrong metadata on 1st line
+					//printf("wrong metadata\n");
 					return;
 				}
                 continue;
@@ -220,13 +224,12 @@ void create_sorted(char *outdir, char *filename, char *columnsort) {
     merge_sort(Record, tmp, true_size, columnsort);
 
 	//sorting done!
-	//change filename to include outdir, if  necessary and  "sorted-column"
-	char filepath[100];
+	//change filename to include outdir, if necessary and  add "sorted-column"
+	char filepath[1024];
 	if(outdir != NULL){
 		strcat(filepath, outdir);
 	}
-	//maybe check if outdir is relative path here?
-	//if relative, change it to absolute
+
 	strcat(filepath, filename);
 	int i, n = strlen(filepath);
 	for(i=n-1; i > (n-5); i--){
@@ -235,6 +238,7 @@ void create_sorted(char *outdir, char *filename, char *columnsort) {
 	strcat(filepath, "-sorted-");
 	strcat(filepath, columnsort);
 	strcat(filepath, ".csv");
+	printf("new file: %s\n", filepath);
 	
 	outputcsv(filepath, Record, true_size, token, count);
     free(tmp);

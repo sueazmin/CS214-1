@@ -684,6 +684,7 @@ void outputcsv(char *filename, struct item_t *a, const int size, char *token, in
 {
 	FILE *fp = fopen(filename, "w");
 	
+	int i, j;
 	//column types
 	fprintf(fp, "%s\n", token);
     //display datas from movie_metada.csv that has null datas in lines.
@@ -691,7 +692,6 @@ void outputcsv(char *filename, struct item_t *a, const int size, char *token, in
     {
         fprintf(fp, "%s\n", a[j].incomplete );
     }	
-	int i;
 	for(i = 0; i < size; i++)
     {
         fprintf(fp, "%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n\n", 
