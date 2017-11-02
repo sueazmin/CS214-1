@@ -19,7 +19,7 @@ void show_dir_content(FILE *pidlist, char *columnsort, char *path, char *outdir)
 void create_sorted(char  *outdir, char *filename,  char *columnsort);
 void remove_whtspace(struct item_t *Record, int size);
 char * trim(char *string);
-
+void rem_endwhite(char *string);
 
 
 int main(int argc, char *argv[]) {
@@ -66,7 +66,7 @@ int main(int argc, char *argv[]) {
 	//open it again & count
 	pidlist = fopen("pidlist.txt", "r");
 	int totalpid = 0;
-	printf("\nInitial PID: %d\n", getpid());
+	printf("Initial PID: %d\n", getpid());
 	printf("PIDs of all child processes: ");
 	
 	//go thru pidlist.txt, print, increment totalpid
@@ -138,6 +138,8 @@ void show_dir_content(FILE *pidlist, char *columnsort, char *path, char *outdir)
 */
 void create_sorted(char *outdir, char *filename, char *columnsort) {
     FILE *stream = fopen(filename, "r");
+	
+	if(stream == NULL) return;
 
     //Hold each line from movie_metadata.csv file
     char line[200000];
@@ -150,17 +152,15 @@ void create_sorted(char *outdir, char *filename, char *columnsort) {
     //hold first line of movie_metadata.csv file which is the column types.
     int first_row = 1;
     int true_size = 0;
-	//token is in sorter.h
 
     if (stream) {
         while (fgets(line, sizeof(line), stream)) {
             if (first_row ==1)
             {
                 first_row++;
-				
-				line[strlen(line)-1] = '\0';
+				rem_endwhite(line);
 				if(strcmp(token, line) != 0){	//wrong metadata on 1st line
-					//printf("wrong metadata\n");
+					printf("wrong metadata\n");
 
 					return;
 				}
@@ -292,4 +292,14 @@ char * trim(char *string){
 	while(isspace((unsigned char) *string)) string++;
 	
 	return string;
+}
+
+/* remove whitespace at the end
+*/
+void rem_endwhite(char *string){
+	int len = strlen(string) -1;
+	int i;
+	for(i=len; isspace(string[i]) && i > 0; i--){
+		string[i] = '\0';
+	}
 }
