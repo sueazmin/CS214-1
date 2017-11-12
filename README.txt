@@ -25,21 +25,11 @@ in exact order:
 	facenumber_in_poster, plot_keywords, movie_imdb_link, num_user_for_reviews, language, country, content_rating, budget, 
 	title_year, actor-2_facebook_likes, imdb_score, aspect_ratio, movie_facebook_likes
 
-The only possible combination of commands given to the sorter program are as follow:
- ./sorter -c "variable"
-		Input directory is the current working directory and the output of sorted files is in the same directory as the original file.
-
- ./sorter -c "variable" -d "input_dir"
-		Input directory is the given input directory and the output of sorted files is in the same directory as the original file.
-
- ./sorter -c "variable" - d "input_dir" -o "output_dir"
-		Input directory is the given input directory and the output of sorted files is in the output directory.
-
-The sorter assumes that the commands are given in that specific order.
+The sorter assumes that the commands are given in specific order (-c before -d before -o)
 
 The sorter ignores hidden directories and csv files with "sorted" in its name.
 
-Multiple variables is not supported.
+Multiple variables for -c command is not supported.
 
 
 DIFFICULTIES:
@@ -49,7 +39,7 @@ challenging. There were several other attempts (using wexitstatus, shared memory
 file as it is more straightforward, easier to debug and can handle many child processes.
 
 Fork is unavailable on Windows environment. Going to ilab, dual-booting Linux, coding in virtual machine, etc. are too tedious.
-Makefile, pscp and putty are used to help with coding remotely through ilab quickly.
+Makefile, pscp and putty are used to help with coding remotely on ilab quickly.
 
 
 HOW TO USE:
@@ -59,14 +49,18 @@ Makefile is provided. Compile with the following commands before using it:
 	OR
 	gcc -o sorter sorter.c mergesort.c
 
-There are 3 ways to use the sorter program:
+There are 4 ways to use the sorter program (-c is mandatory, -d and -o are optional):
+
  ./sorter -c "variable"
 		Input directory is the current working directory and the output of sorted files is in the same directory as the original file.
 
  ./sorter -c "variable" -d "input_dir"
 		Input directory is the given input directory and the output of sorted files is in the same directory as the original file.
 
- ./sorter -c "variable" - d "input_dir" -o "output_dir"
+ ./sorter -c "variable" -o "output_dir"
+		Input directory is the current working directory and the output of sorted files is in the output directory.
+
+ ./sorter -c "variable" -d "input_dir" -o "output_dir"
 		Input directory is the given input directory and the output of sorted files is in the output directory.
 		
 variable = 		any 1 variable under ASSUMPTIONS
@@ -90,4 +84,10 @@ mergesort.c
 	- Create output for sorted data.
 
 README.txt
-    - Description of submitted files
+    - Description of submitted files.
+
+Makefile
+	- Shell command to compile the sorter.
+
+testdir.tar
+	- Directories of csv files for testing the sorter.

@@ -28,30 +28,57 @@ int main(int argc, char *argv[]) {
 		printf("not enough command\n");
 		return 0;
 	}
+	
+	if(strcmp(argv[1], "-c") != 0){
+		printf("missing command: -c\n");
+		return 0;
+	}
 
 	remove("pidlist.txt");
 	FILE *pidlist = fopen("pidlist.txt", "a");
 	
-	
+	//1 arg
 	if(argc < 4){	//scan current dir
 		char cwd[255];
 		getcwd(cwd, sizeof(cwd));
 		strcat(cwd,"/");
 		//printf("Sort by: %s, Input dir: %s, Output dir: none\n", argv[2], cwd);
 		show_dir_content(pidlist, argv[2], cwd, NULL);
-		
+	
+	//2 args
 	} else if(argc < 6){
 		//printf("Sort by: %s, Input dir: %s, Output dir: none\n", argv[2], argv[4]);
-		show_dir_content(pidlist, argv[2], argv[4], NULL);
 		
-	} else if (strcmp(argv[6],".") == 0){
+		if(strcmp(argv[3], "-d") == 0){
+			show_dir_content(pidlist, argv[2], argv[4], NULL);
+			
+		} else if(strcmp(argv[3], "-o") == 0){
+			char cwd[255];
+			getcwd(cwd, sizeof(cwd));
+			strcat(cwd,"/");			
+			show_dir_content(pidlist, argv[2], cwd, argv[4]);
+			
+		} else {
+			printf("missing command: -d or -o\n");
+			return 0;
+		}
+	
+	//3 args
+	} else {
+		if(strcmp(argv[3], "-d") != 0 || strcmp(argv[5], "-o") != 0){
+			printf("missing  command: -d and -o\n");
+			return 0;
+		}
+		
+		if (strcmp(argv[6],".") == 0){
 		char cwd[255];
 		getcwd(cwd, sizeof(cwd));
 		strcat(cwd,"/");
 	    show_dir_content(pidlist, argv[2], argv[4], cwd);
-
-	} else {
-		show_dir_content(pidlist, argv[2], argv[4], argv[6]);
+		
+		} else {
+			show_dir_content(pidlist, argv[2], argv[4], argv[6]);
+		}
 	}
 	
 	
@@ -160,8 +187,7 @@ void create_sorted(char *outdir, char *filename, char *columnsort) {
                 first_row++;
 				rem_endwhite(line);
 				if(strcmp(token, line) != 0){	//wrong metadata on 1st line
-					printf("wrong metadata\n");
-
+					//printf("wrong metadata\n");
 					return;
 				}
                 continue;
